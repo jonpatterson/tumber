@@ -12,6 +12,6 @@ Google Chrome allows fast switching of tabs using keyboard shortcuts.  With no t
 
 1. Launch Google Chrome and open several tabs containing webpages
 2. Right-click anywhere in an open tab and click "Tumber" in the context menu
-3. Et voila, Tumber will add a tab numbers to the start of each tab title
+3. Et voila, Tumber will add a tab number to the start of each tab title
 4. Press <kbd>&#8984;</kbd> + <kbd>1</kbd> through <kbd>&#8984;</kbd> + <kbd>8</kbd> to jump to a tab on Mac
 5. Press <kbd>Ctrl</kbd> + <kbd>1</kbd> through <kbd>Ctrl</kbd> + <kbd>8</kbd> to jump to a tab on Windows
