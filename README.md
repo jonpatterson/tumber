@@ -1,12 +1,13 @@
 # Tumber #
 
-Google Chrome allows fast switching of tabs using keyboard shortcuts.  With no tab numbers displayed and several tabs open this can take a bit of guess work!  Tumber is a Chrome Extension that displays tab numbers for tab jumping ninjas!
+Google Chrome allows fast switching of tabs using keyboard shortcuts.  With no tab numbers displayed and several tabs open this can take a bit of guess work!  Tumber is a Chrome Extension that displays tab numbers for tab jumping ninja!
 
 ### Setup ###
 
-1. Launch Google Chrome and enter `chrome://extensions` in the address bar
-2. Check the box to enable 'Developer mode'
-3. Click 'Load unpacked extension...' and select the project directory
+1. Clone or download this repository
+2. Launch Google Chrome and enter `chrome://extensions` in the address bar
+3. Check the option to enable 'Developer mode'
+4. Click the 'Load unpacked' button and select `src` in the project directory
 
 ### Usage ###
 
