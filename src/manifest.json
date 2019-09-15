@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
   "name": "Tumber",
-  "description": "Display tab numbers for tab jumping ninjas!",
-  "version": "0.1",
+  "description": "Display tab numbers for tab jumping ninja!",
+  "version": "0.2",
   "permissions": [
-      "tabs", "contextMenus", "http://*/*","https://*/*"
+      "tabs", "contextMenus", "http://*/","https://*/"
   ],
   "background": {
       "persistent": false,
