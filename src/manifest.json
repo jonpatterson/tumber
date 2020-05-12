@@ -9,5 +9,19 @@
   "background": {
       "persistent": false,
       "scripts": ["tumber.js"]
+  },
+  "commands": {
+    "toggle_current_window": {
+      "suggested_key": {
+        "windows": "Ctrl+Space"
+      },
+      "description": "Show/hide current window"
+    },
+    "toggle_all_windows": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+Space"
+      },
+      "description": "Show/hide all windows"
+    }
   }
 }

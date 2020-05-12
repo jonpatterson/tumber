@@ -1,6 +1,10 @@
 const SHOW = 'show';
 const HIDE = 'hide';
+const TOGGLE_CURRENT = 'toggle_current_window';
+const TOGGLE_ALL = 'toggle_all_windows';
 const TAB_LIMIT = 8;
+
+const activeWindows = new Set();
 
 const showTabNumbersInWindow = (windowId) => {
   chrome.tabs.query({ windowId }, tabs => {
@@ -11,6 +15,8 @@ const showTabNumbersInWindow = (windowId) => {
         { code: `document.title = "${tab.index + 1}: ${tab.title.substring(tab.title.indexOf(":") + 1)}";` }
       );
     }
+    activeWindows.add(windowId);
+    console.log(activeWindows);
   });
 };
 
@@ -20,6 +26,8 @@ const removeTabNumbersInWindow = (windowId) => {
       tab.url.includes('http') &&
       chrome.tabs.executeScript(tab.id, { code: resetTabTitle(tab.title) })
     }
+    activeWindows.delete(windowId);
+    console.log(activeWindows);
   });
 };
 
@@ -29,34 +37,46 @@ const resetTabTitle = (tabTitle) => {
     : `document.title = "${tabTitle}";`;
 };
 
-let activeWindows = [];
-
 const onClickHandler = (info) => {
   switch (info.menuItemId) {
     case SHOW:
-      showTabNumbersInWindow(chrome.windows.WINDOW_ID_CURRENT);
-      chrome.windows.getCurrent({}, window => activeWindows.push(window.id));
+      chrome.windows.getCurrent({}, window => showTabNumbersInWindow(window.id));
       break;
     case HIDE:
-      removeTabNumbersInWindow(chrome.windows.WINDOW_ID_CURRENT);
-      chrome.windows.getCurrent({}, window => {
-        activeWindows = activeWindows.filter(activeWindow => activeWindow !== window.id)
-      });
+      chrome.windows.getCurrent({}, window => removeTabNumbersInWindow(window.id));
       break;
     default:
       break;
   }
 };
 
+chrome.commands.onCommand.addListener((command) => {
+  switch (command) {
+    case TOGGLE_CURRENT:
+      console.log(command);
+      chrome.windows.getCurrent({}, window => {
+        activeWindows.has(window.id)
+          ? removeTabNumbersInWindow(window.id)
+          : showTabNumbersInWindow(window.id)
+      });
+      break;
+    case TOGGLE_ALL:
+      console.log(command);
+      break;
+    default:
+      break;
+  }  
+});
+
 chrome.tabs.onMoved.addListener((tabId, moveInfo) => {
-  if (activeWindows.includes(moveInfo.windowId)) {
-    removeTabNumbersInWindow(chrome.windows.WINDOW_ID_CURRENT);
-    showTabNumbersInWindow(chrome.windows.WINDOW_ID_CURRENT);
+  if (activeWindows.has(moveInfo.windowId)) {
+    removeTabNumbersInWindow(moveInfo.windowId);
+    showTabNumbersInWindow(moveInfo.windowId);
   }
 });
 
 chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
-  if (activeWindows.includes(detachInfo.oldWindowId)) {
+  if (activeWindows.has(detachInfo.oldWindowId)) {
     showTabNumbersInWindow(detachInfo.oldWindowId);
     chrome.tabs.get(tabId, (tab) => {
       chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) })
@@ -65,15 +85,15 @@ chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
 });
 
 chrome.tabs.onAttached.addListener((tabId, attachInfo) => {
-  if (activeWindows.includes(attachInfo.newWindowId)) {
+  if (activeWindows.has(attachInfo.newWindowId)) {
     showTabNumbersInWindow(attachInfo.newWindowId);
   }
 });
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  if (activeWindows.includes(removeInfo.windowId)) {
-    removeTabNumbersInWindow(chrome.windows.WINDOW_ID_CURRENT);
-    showTabNumbersInWindow(chrome.windows.WINDOW_ID_CURRENT);
+  if (activeWindows.has(removeInfo.windowId)) {
+    removeTabNumbersInWindow(removeInfo.windowId);
+    showTabNumbersInWindow(removeInfo.windowId);
   }
 });
 
