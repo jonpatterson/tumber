@@ -2,12 +2,26 @@
   "manifest_version": 2,
   "name": "Tumber",
   "description": "Display tab numbers for tab jumping ninja!",
-  "version": "0.2",
+  "version": "0.3",
   "permissions": [
       "tabs", "contextMenus", "http://*/","https://*/"
   ],
   "background": {
       "persistent": false,
       "scripts": ["tumber.js"]
+  },
+  "commands": {
+    "toggle_current_window": {
+      "suggested_key": {
+        "windows": "Ctrl+Space"
+      },
+      "description": "Toggle current window"
+    },
+    "toggle_all_windows": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+Space"
+      },
+      "description": "Toggle all windows"
+    }
   }
 }
