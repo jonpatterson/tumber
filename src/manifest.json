@@ -1,14 +1,18 @@
 {
   "manifest_version": 2,
-  "name": "Tumber",
+  "name": "Tumber - Tab Numbers for Chrome",
   "description": "Display tab numbers for tab jumping ninja!",
-  "version": "0.3",
+  "version": "0.4",
   "permissions": [
-      "tabs", "contextMenus", "http://*/","https://*/"
+      "tabs", "contextMenus", "<all_urls>"
   ],
   "background": {
       "persistent": false,
-      "scripts": ["tumber.js"]
+      "scripts": [
+        "constants.js",
+        "tumber.js",
+        "events.js"
+      ]
   },
   "commands": {
     "toggle_current_window": {
