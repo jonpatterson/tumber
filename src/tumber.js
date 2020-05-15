@@ -1,26 +1,23 @@
-const SHOW = 'show';
-const HIDE = 'hide';
-const TOGGLE_CURRENT = 'toggle_current_window';
-const TOGGLE_ALL = 'toggle_all_windows';
-const TAB_LIMIT = 8;
-
 const activeWindowIds = new Set();
 let isActiveAllWindows = false;
+let isSelfDestructEnabled = false;
 
 const showTabNumbersInAllWindows = () => {
+  isActiveAllWindows = true;
+
   chrome.windows.getAll({}, windows => {
     for (let window of windows) {
       showTabNumbersInWindow(window.id);
     }
-    isActiveAllWindows = true;
   });
 };
 
 const removeTabNumbersInAllWindows = () => {
+  isActiveAllWindows = false;
+
   for (let activeWindowId of activeWindowIds) {
     removeTabNumbersInWindow(activeWindowId);
   }
-  isActiveAllWindows = false;
 };
 
 const showTabNumbersInWindow = (windowId) => {
@@ -33,6 +30,12 @@ const showTabNumbersInWindow = (windowId) => {
       );
     }
     activeWindowIds.add(windowId);
+
+    if (isSelfDestructEnabled) {
+      setTimeout(() => {
+        removeTabNumbersInAllWindows();
+      }, SELF_DESTRUCT_TIME_MS);
+    }
   });
 };
 
@@ -52,81 +55,34 @@ const resetTabTitle = (tabTitle) => {
     : `document.title = "${tabTitle}";`;
 };
 
-const onClickHandler = (info) => {
-  switch (info.menuItemId) {
-    case SHOW:
-      chrome.windows.getCurrent({}, window => showTabNumbersInWindow(window.id));
+const toggleCurrentWindow = () => {
+  chrome.windows.getCurrent({}, window => {
+    activeWindowIds.has(window.id)
+      ? removeTabNumbersInWindow(window.id)
+      : showTabNumbersInWindow(window.id)
+  });
+};
+
+const toggleAllWindows = () => {
+  isActiveAllWindows
+  ? removeTabNumbersInAllWindows()
+  : showTabNumbersInAllWindows()
+};
+
+const onClickHandler = (event) => {
+  const eventId = typeof(event) === 'string' ? event : event.menuItemId;
+
+  switch (eventId) {
+    case TOGGLE_CURRENT_CONTEXT.id:
+      toggleCurrentWindow();
       break;
-    case HIDE:
-      chrome.windows.getCurrent({}, window => removeTabNumbersInWindow(window.id));
+    case TOGGLE_ALL_CONTEXT.id:
+      toggleAllWindows();
+      break;
+    case TOGGLE_SELF_DESTRUCT_CONTEXT.id:
+      isSelfDestructEnabled = !isSelfDestructEnabled;
       break;
     default:
       break;
   }
 };
-
-chrome.commands.onCommand.addListener((command) => {
-  switch (command) {
-    case TOGGLE_CURRENT:
-      chrome.windows.getCurrent({}, window => {
-        activeWindowIds.has(window.id)
-          ? removeTabNumbersInWindow(window.id)
-          : showTabNumbersInWindow(window.id)
-      });
-      break;
-    case TOGGLE_ALL:
-      isActiveAllWindows
-        ? removeTabNumbersInAllWindows()
-        : showTabNumbersInAllWindows()
-      break;
-    default:
-      break;
-  }
-});
-
-chrome.tabs.onMoved.addListener((tabId, moveInfo) => {
-  if (activeWindowIds.has(moveInfo.windowId)) {
-    removeTabNumbersInWindow(moveInfo.windowId);
-    showTabNumbersInWindow(moveInfo.windowId);
-  }
-});
-
-chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
-  if (activeWindowIds.has(detachInfo.oldWindowId)) {
-    showTabNumbersInWindow(detachInfo.oldWindowId);
-    chrome.tabs.get(tabId, (tab) => {
-      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) })
-    })
-  }
-});
-
-chrome.tabs.onAttached.addListener((tabId, attachInfo) => {
-  if (activeWindowIds.has(attachInfo.newWindowId)) {
-    showTabNumbersInWindow(attachInfo.newWindowId);
-  }
-});
-
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  if (activeWindowIds.has(removeInfo.windowId)) {
-    removeTabNumbersInWindow(removeInfo.windowId);
-    showTabNumbersInWindow(removeInfo.windowId);
-  }
-});
-
-const createContextMenuItem = (id) => {
-  chrome.contextMenus.create({
-    id,
-    title: id.charAt(0).toUpperCase() + id.slice(1),
-    contexts: ['all'],
-  })
-};
-
-chrome.runtime.onInstalled.addListener(() => {
-  const contexts = [SHOW, HIDE];
-
-  for (const context of contexts) {
-    createContextMenuItem(context);
-  }
-});
-
-chrome.contextMenus.onClicked.addListener(onClickHandler);
