@@ -1,4 +1,4 @@
-# Tumber #
+# ![tumber logo](https://github.com/jonpatterson/tumber/blob/master/src/images/icon24.png?raw=true) Tumber #
 Google Chrome allows fast switching of tabs using keyboard shortcuts.  With no tab numbers displayed and several tabs open this can take a bit of guess work!  Tumber is a Chrome Extension that displays tab numbers for tab jumping ninja!
 
 ### Setup ###
