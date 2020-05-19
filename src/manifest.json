@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Tumber - Tab Numbers for Chrome",
+  "name": "Tumber - Tab Numbers for Google Chrome\u2122",
   "short_name": "Tumber",
-  "description": "A Chrome Extension to display tab numbers for tab jumping ninja!",
+  "description": "Show tab numbers in Google Chrome\u2122 for tab jumping ninja!",
   "version": "1.0.0",
   "permissions": [
       "tabs", "contextMenus", "<all_urls>"
