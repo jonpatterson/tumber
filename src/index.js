@@ -1,3 +1,19 @@
+import {
+  PARENT_MENU_CONTEXT,
+  TOGGLE_CURRENT_CONTEXT,
+  TOGGLE_ALL_CONTEXT,
+  SETTINGS_SEPARATOR_CONTEXT,
+  TOGGLE_SELF_DESTRUCT_CONTEXT,
+} from './constants';
+import {
+  onClickHandler,
+  removeTabNumbersInWindow,
+  showTabNumbersInWindow,
+  resetTabTitle,
+  activeWindowIds,
+} from './tumber';
+
+
 chrome.commands.onCommand.addListener((command) => { onClickHandler(command) });
 
 chrome.tabs.onMoved.addListener((tabId, moveInfo) => {

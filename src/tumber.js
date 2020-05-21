@@ -1,4 +1,12 @@
-const activeWindowIds = new Set();
+import {
+  TAB_LIMIT,
+  SELF_DESTRUCT_TIME_MS,
+  TOGGLE_CURRENT_CONTEXT,
+  TOGGLE_ALL_CONTEXT,
+  TOGGLE_SELF_DESTRUCT_CONTEXT,
+} from './constants';
+
+export const activeWindowIds = new Set();
 let isActiveAllWindows = false;
 let isSelfDestructEnabled = false;
 
@@ -20,7 +28,7 @@ const removeTabNumbersInAllWindows = () => {
   }
 };
 
-const showTabNumbersInWindow = (windowId) => {
+export const showTabNumbersInWindow = (windowId) => {
   chrome.tabs.query({ windowId }, tabs => {
     for (const tab of tabs) {
       tab.url.includes('http') && tab.index < TAB_LIMIT &&
@@ -39,7 +47,7 @@ const showTabNumbersInWindow = (windowId) => {
   });
 };
 
-const removeTabNumbersInWindow = (windowId) => {
+export const removeTabNumbersInWindow = (windowId) => {
   chrome.tabs.query({ windowId }, tabs => {
     for (const tab of tabs) {
       tab.url.includes('http') &&
@@ -49,7 +57,7 @@ const removeTabNumbersInWindow = (windowId) => {
   });
 };
 
-const resetTabTitle = (tabTitle) => {
+export const resetTabTitle = (tabTitle) => {
   return tabTitle.includes(":")
     ? `document.title = "${tabTitle.substring(tabTitle.indexOf(":") + 2)}";`
     : `document.title = "${tabTitle}";`;
@@ -69,7 +77,7 @@ const toggleAllWindows = () => {
   : showTabNumbersInAllWindows()
 };
 
-const onClickHandler = (event) => {
+export const onClickHandler = (event) => {
   const eventId = typeof(event) === 'string' ? event : event.menuItemId;
 
   switch (eventId) {

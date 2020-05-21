@@ -21,11 +21,7 @@
   },
   "background": {
       "persistent": false,
-      "scripts": [
-        "constants.js",
-        "tumber.js",
-        "events.js"
-      ]
+      "scripts": ["main.js"]
   },
   "commands": {
     "toggle_current_window": {
