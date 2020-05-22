@@ -27,13 +27,13 @@ export const SETTINGS_SEPARATOR_CONTEXT = {
   type: 'separator',
   contexts: ['all'],
   parentId: 'parent',
-}
+};
 
 export const PARENT_MENU_CONTEXT = {
   id: 'parent',
   title: 'Tumber',
   contexts: ['all'],
-}
+};
 
 export const TAB_LIMIT = 8;
 

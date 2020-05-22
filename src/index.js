@@ -11,10 +11,11 @@ import {
   showTabNumbersInWindow,
   resetTabTitle,
   activeWindowIds,
-} from './tumber';
+} from './handlers';
 
-
-chrome.commands.onCommand.addListener((command) => { onClickHandler(command) });
+chrome.commands.onCommand.addListener((command) => {
+  onClickHandler(command);
+});
 
 chrome.tabs.onMoved.addListener((tabId, moveInfo) => {
   if (activeWindowIds.has(moveInfo.windowId)) {
@@ -27,8 +28,8 @@ chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
   if (activeWindowIds.has(detachInfo.oldWindowId)) {
     showTabNumbersInWindow(detachInfo.oldWindowId);
     chrome.tabs.get(tabId, (tab) => {
-      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) })
-    })
+      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) });
+    });
   }
 });
 
