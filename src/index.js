@@ -1,4 +1,21 @@
-chrome.commands.onCommand.addListener((command) => { onClickHandler(command) });
+import {
+  PARENT_MENU_CONTEXT,
+  TOGGLE_CURRENT_CONTEXT,
+  TOGGLE_ALL_CONTEXT,
+  SETTINGS_SEPARATOR_CONTEXT,
+  TOGGLE_SELF_DESTRUCT_CONTEXT,
+} from './constants';
+import {
+  onClickHandler,
+  removeTabNumbersInWindow,
+  showTabNumbersInWindow,
+  resetTabTitle,
+  activeWindowIds,
+} from './handlers';
+
+chrome.commands.onCommand.addListener((command) => {
+  onClickHandler(command);
+});
 
 chrome.tabs.onMoved.addListener((tabId, moveInfo) => {
   if (activeWindowIds.has(moveInfo.windowId)) {
@@ -11,8 +28,8 @@ chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
   if (activeWindowIds.has(detachInfo.oldWindowId)) {
     showTabNumbersInWindow(detachInfo.oldWindowId);
     chrome.tabs.get(tabId, (tab) => {
-      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) })
-    })
+      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) });
+    });
   }
 });
 
