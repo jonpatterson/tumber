@@ -1,4 +1,4 @@
-# ![tumber logo](https://github.com/jonpatterson/tumber/blob/master/src/images/icon24.png?raw=true) Tumber #
+# ![tumber logo](https://github.com/jonpatterson/tumber/blob/master/src/icons/icon24.png?raw=true) Tumber #
 
 Show tab numbers in Google Chrome™ for tab jumping ninja!
 
