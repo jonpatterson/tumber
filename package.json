@@ -4,7 +4,8 @@
   "description": "Show tab numbers in Google Chrome\u2122 for tab jumping ninja!",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --env.development",
+    "build:prod": "webpack --env.production",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src"
   },
