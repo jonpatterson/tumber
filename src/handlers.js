@@ -8,7 +8,19 @@ import {
 
 export const activeWindowIds = new Set();
 let isActiveAllWindows = false;
-let isSelfDestructEnabled = false;
+
+const getLocalStorage = () => {
+  return new Promise((resolve) => {
+    chrome.storage.local.get((result) => resolve(result));
+  });
+};
+
+const toggleIsSelfDestructEnabled = () => {
+  chrome.storage.local.get((result) => {
+    const isEnabled = result.isSelfDestructEnabled ? true : false;
+    chrome.storage.local.set({ isSelfDestructEnabled: !isEnabled });
+  });
+};
 
 const showTabNumbersInAllWindows = () => {
   isActiveAllWindows = true;
@@ -41,11 +53,13 @@ export const showTabNumbersInWindow = (windowId) => {
     }
     activeWindowIds.add(windowId);
 
-    if (isSelfDestructEnabled) {
-      setTimeout(() => {
-        removeTabNumbersInAllWindows();
-      }, SELF_DESTRUCT_TIME_MS);
-    }
+    getLocalStorage().then(({ isSelfDestructEnabled }) => {
+      if (isSelfDestructEnabled) {
+        setTimeout(() => {
+          removeTabNumbersInAllWindows();
+        }, SELF_DESTRUCT_TIME_MS);
+      }
+    });
   });
 };
 
@@ -92,7 +106,7 @@ export const onClickHandler = (event) => {
       toggleAllWindows();
       break;
     case TOGGLE_SELF_DESTRUCT_CONTEXT.id:
-      isSelfDestructEnabled = !isSelfDestructEnabled;
+      toggleIsSelfDestructEnabled();
       break;
     default:
       break;

@@ -5,7 +5,7 @@
   "description": "Show tab numbers in Google Chrome\u2122 for tab jumping ninja!",
   "version": "1.0.0",
   "permissions": [
-      "tabs", "contextMenus", "<all_urls>"
+      "storage", "tabs", "contextMenus", "<all_urls>"
   ],
   "browser_action": {
     "default_icon": {
