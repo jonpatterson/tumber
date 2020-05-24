@@ -6,12 +6,43 @@ import {
   TOGGLE_SELF_DESTRUCT_CONTEXT,
 } from './constants';
 
-export const activeWindowIds = new Set();
 let isActiveAllWindows = false;
 
 const getLocalStorage = () => {
   return new Promise((resolve) => {
     chrome.storage.local.get((result) => resolve(result));
+  });
+};
+
+const getActiveWindows = () => {
+  getLocalStorage().then(({ activeWindows }) => {
+    return activeWindows;
+  });
+};
+
+export const setActiveWindows = (windowId, action) => {
+  chrome.storage.local.get((result) => {
+    let activeWindows = result.activeWindows ? result.activeWindows : [];
+
+    if (action === 'add') {
+      !activeWindows.includes(windowId) && activeWindows.push(windowId);
+    } else if (action === 'remove') {
+      activeWindows = activeWindows.filter((window) => window !== windowId);
+    }
+
+    chrome.storage.local.set({ activeWindows });
+  });
+};
+
+export const isWindowActive = (windowId) => {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(({ activeWindows }) => {
+      const isActiveWindow = activeWindows
+        ? activeWindows.includes(windowId)
+        : false;
+
+      resolve(isActiveWindow);
+    });
   });
 };
 
@@ -34,9 +65,10 @@ const showTabNumbersInAllWindows = () => {
 
 const removeTabNumbersInAllWindows = () => {
   isActiveAllWindows = false;
+  const activeWindows = getActiveWindows();
 
-  for (let activeWindowId of activeWindowIds) {
-    removeTabNumbersInWindow(activeWindowId);
+  for (let window of activeWindows) {
+    removeTabNumbersInWindow(window);
   }
 };
 
@@ -51,7 +83,7 @@ export const showTabNumbersInWindow = (windowId) => {
           )}";`,
         });
     }
-    activeWindowIds.add(windowId);
+    setActiveWindows(windowId, 'add');
 
     getLocalStorage().then(({ isSelfDestructEnabled }) => {
       if (isSelfDestructEnabled) {
@@ -71,7 +103,8 @@ export const removeTabNumbersInWindow = (windowId) => {
           code: resetTabTitle(tab.title),
         });
     }
-    activeWindowIds.delete(windowId);
+
+    setActiveWindows(windowId, 'remove');
   });
 };
 
@@ -83,9 +116,11 @@ export const resetTabTitle = (tabTitle) => {
 
 const toggleCurrentWindow = () => {
   chrome.windows.getCurrent({}, (window) => {
-    activeWindowIds.has(window.id)
-      ? removeTabNumbersInWindow(window.id)
-      : showTabNumbersInWindow(window.id);
+    isWindowActive(window.id).then((result) => {
+      result
+        ? removeTabNumbersInWindow(window.id)
+        : showTabNumbersInWindow(window.id);
+    });
   });
 };
 
