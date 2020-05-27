@@ -14,12 +14,6 @@ const getLocalStorage = () => {
   });
 };
 
-const getActiveWindows = () => {
-  getLocalStorage().then(({ activeWindows }) => {
-    return activeWindows;
-  });
-};
-
 export const setActiveWindows = (windowId, action) => {
   chrome.storage.local.get((result) => {
     let activeWindows = result.activeWindows ? result.activeWindows : [];
@@ -36,12 +30,8 @@ export const setActiveWindows = (windowId, action) => {
 
 export const isWindowActive = (windowId) => {
   return new Promise((resolve) => {
-    chrome.storage.local.get(({ activeWindows }) => {
-      const isActiveWindow = activeWindows
-        ? activeWindows.includes(windowId)
-        : false;
-
-      resolve(isActiveWindow);
+    getLocalStorage().then(({ activeWindows }) => {
+      resolve(activeWindows ? activeWindows.includes(windowId) : false);
     });
   });
 };
@@ -65,11 +55,12 @@ const showTabNumbersInAllWindows = () => {
 
 const removeTabNumbersInAllWindows = () => {
   isActiveAllWindows = false;
-  const activeWindows = getActiveWindows();
 
-  for (let window of activeWindows) {
-    removeTabNumbersInWindow(window);
-  }
+  getLocalStorage().then(({ activeWindows }) => {
+    for (let window of activeWindows) {
+      removeTabNumbersInWindow(window);
+    }
+  });
 };
 
 export const showTabNumbersInWindow = (windowId) => {

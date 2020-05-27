@@ -28,31 +28,35 @@ chrome.tabs.onMoved.addListener((tabId, moveInfo) => {
 });
 
 chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
-  if (isWindowActive(detachInfo.oldWindowId)) {
-    showTabNumbersInWindow(detachInfo.oldWindowId);
-    chrome.tabs.get(tabId, (tab) => {
-      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) });
-    });
-  }
+  isWindowActive(detachInfo.oldWindowId).then((result) => {
+    if (result) {
+      showTabNumbersInWindow(detachInfo.oldWindowId);
+      chrome.tabs.get(tabId, (tab) => {
+        chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) });
+      });
+    }
+  });
 });
 
 chrome.tabs.onAttached.addListener((tabId, attachInfo) => {
-  if (isWindowActive(attachInfo.newWindowId)) {
-    showTabNumbersInWindow(attachInfo.newWindowId);
-  }
+  isWindowActive(attachInfo.newWindowId).then((result) => {
+    if (result) {
+      showTabNumbersInWindow(attachInfo.newWindowId);
+    }
+  });
 });
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  if (removeInfo.isWindowClosing) {
-    isWindowActive(removeInfo.windowId).then((result) => {
-      if (result) {
+  isWindowActive(removeInfo.windowId).then((result) => {
+    if (result) {
+      if (removeInfo.isWindowClosing) {
         setActiveWindows(removeInfo.windowId, 'remove');
+      } else {
+        removeTabNumbersInWindow(removeInfo.windowId);
+        showTabNumbersInWindow(removeInfo.windowId);
       }
-    });
-  } else if (isWindowActive(removeInfo.windowId)) {
-    removeTabNumbersInWindow(removeInfo.windowId);
-    showTabNumbersInWindow(removeInfo.windowId);
-  }
+    }
+  });
 });
 
 chrome.runtime.onInstalled.addListener(() => {
