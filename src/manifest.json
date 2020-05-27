@@ -3,7 +3,7 @@
   "name": "Tumber - Tab Numbers for Google Chrome\u2122",
   "short_name": "Tumber",
   "description": "Show tab numbers in Google Chrome\u2122 for tab jumping ninja!",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "permissions": [
       "storage", "tabs", "contextMenus", "<all_urls>"
   ],
