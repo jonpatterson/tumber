@@ -30,3 +30,7 @@ export const toggleIsSelfDestructEnabled = async () => {
   const { isSelfDestructEnabled = false } = await getLocalStorage();
   chrome.storage.local.set({ isSelfDestructEnabled: !isSelfDestructEnabled });
 };
+
+export const setIsActiveAllWindows = async (isActiveAllWindows) => {
+  chrome.storage.local.set({ isActiveAllWindows });
+};

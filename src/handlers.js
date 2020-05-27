@@ -11,20 +11,17 @@ import {
   removeActiveWindow,
   clearActiveWindows,
   toggleIsSelfDestructEnabled,
+  setIsActiveAllWindows,
 } from './storage';
 
-let isActiveAllWindows = false;
+export const isWindowActive = async (windowId) => {
+  const { activeWindows } = await getLocalStorage();
 
-export const isWindowActive = (windowId) => {
-  return new Promise((resolve) => {
-    getLocalStorage().then(({ activeWindows }) => {
-      resolve(activeWindows ? activeWindows.includes(windowId) : false);
-    });
-  });
+  return activeWindows ? activeWindows.includes(windowId) : false;
 };
 
 const showTabNumbersInAllWindows = () => {
-  isActiveAllWindows = true;
+  setIsActiveAllWindows(true);
 
   chrome.windows.getAll({}, async (windows) => {
     for (let window of windows) {
@@ -35,7 +32,7 @@ const showTabNumbersInAllWindows = () => {
 };
 
 const removeTabNumbersInAllWindows = async () => {
-  isActiveAllWindows = false;
+  setIsActiveAllWindows(false);
 
   const { activeWindows } = await getLocalStorage();
   if (activeWindows) {
@@ -97,7 +94,8 @@ const toggleCurrentWindow = () => {
   });
 };
 
-const toggleAllWindows = () => {
+const toggleAllWindows = async () => {
+  const { isActiveAllWindows } = await getLocalStorage();
   isActiveAllWindows
     ? removeTabNumbersInAllWindows()
     : showTabNumbersInAllWindows();
