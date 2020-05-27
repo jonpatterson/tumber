@@ -5,7 +5,13 @@ import {
   TOGGLE_ALL_CONTEXT,
   TOGGLE_SELF_DESTRUCT_CONTEXT,
 } from './constants';
-import { getLocalStorage, setActiveWindows } from './storage';
+import {
+  getLocalStorage,
+  addActiveWindow,
+  removeActiveWindow,
+  clearActiveWindows,
+  toggleIsSelfDestructEnabled,
+} from './storage';
 
 let isActiveAllWindows = false;
 
@@ -17,38 +23,32 @@ export const isWindowActive = (windowId) => {
   });
 };
 
-const toggleIsSelfDestructEnabled = () => {
-  chrome.storage.local.get((result) => {
-    const isEnabled = result.isSelfDestructEnabled ? true : false;
-    chrome.storage.local.set({ isSelfDestructEnabled: !isEnabled });
-  });
-};
-
 const showTabNumbersInAllWindows = () => {
   isActiveAllWindows = true;
 
   chrome.windows.getAll({}, async (windows) => {
     for (let window of windows) {
-      await setActiveWindows(window.id, 'add');
+      await addActiveWindow(window.id);
       showTabNumbersInWindow(window.id);
     }
   });
 };
 
-const removeTabNumbersInAllWindows = () => {
+const removeTabNumbersInAllWindows = async () => {
   isActiveAllWindows = false;
 
-  getLocalStorage().then(({ activeWindows }) => {
+  const { activeWindows } = await getLocalStorage();
+  if (activeWindows) {
     for (let window of activeWindows) {
       removeTabNumbersInWindow(window);
     }
 
-    chrome.storage.local.remove('activeWindows');
-  });
+    clearActiveWindows();
+  }
 };
 
 export const showTabNumbersInWindow = (windowId) => {
-  chrome.tabs.query({ windowId }, (tabs) => {
+  chrome.tabs.query({ windowId }, async (tabs) => {
     for (const tab of tabs) {
       tab.url.includes('http') &&
         tab.index < TAB_LIMIT &&
@@ -59,13 +59,9 @@ export const showTabNumbersInWindow = (windowId) => {
         });
     }
 
-    getLocalStorage().then(({ isSelfDestructEnabled }) => {
-      if (isSelfDestructEnabled) {
-        setTimeout(() => {
-          removeTabNumbersInAllWindows();
-        }, SELF_DESTRUCT_TIME_MS);
-      }
-    });
+    const { isSelfDestructEnabled } = await getLocalStorage();
+    isSelfDestructEnabled &&
+      setTimeout(() => removeTabNumbersInAllWindows(), SELF_DESTRUCT_TIME_MS);
   });
 };
 
@@ -87,16 +83,17 @@ export const resetTabTitle = (tabTitle) => {
 };
 
 const toggleCurrentWindow = () => {
-  chrome.windows.getCurrent({}, (window) => {
-    isWindowActive(window.id).then(async (result) => {
-      if (result) {
-        removeTabNumbersInWindow(window.id);
-        await setActiveWindows(window.id, 'remove');
-      } else {
-        showTabNumbersInWindow(window.id);
-        await setActiveWindows(window.id, 'add');
-      }
-    });
+  chrome.windows.getCurrent({}, async (window) => {
+    const { id } = window;
+    const isActive = await isWindowActive(id);
+
+    if (isActive) {
+      removeTabNumbersInWindow(id);
+      await removeActiveWindow(id);
+    } else {
+      showTabNumbersInWindow(id);
+      await addActiveWindow(id);
+    }
   });
 };
 

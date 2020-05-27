@@ -12,7 +12,7 @@ import {
   resetTabTitle,
   isWindowActive,
 } from './handlers';
-import { setActiveWindows } from './storage';
+import { removeActiveWindow } from './storage';
 
 chrome.commands.onCommand.addListener((command) => {
   onClickHandler(command);
@@ -59,7 +59,7 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 
 chrome.windows.onRemoved.addListener(async (windowId) => {
   const isActive = await isWindowActive(windowId);
-  isActive && setActiveWindows(windowId, 'remove');
+  isActive && removeActiveWindow(windowId);
 });
 
 chrome.runtime.onInstalled.addListener(() => {
