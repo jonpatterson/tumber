@@ -1,7 +1,5 @@
 # ![tumber logo](https://github.com/jonpatterson/tumber/blob/master/src/icons/icon24.png?raw=true) Tumber #
 
-Show tab numbers in Google Chrome™ for tab jumping ninja!
-
 Google Chrome allows fast switching between tabs using keyboard shortcuts.  With several tabs open this can take a bit of guess work.
 
 Tumber shows a tab number in each open tab so you never jump to the wrong tab again!
