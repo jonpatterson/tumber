@@ -4,6 +4,8 @@ Google Chrome allows fast switching between tabs using keyboard shortcuts.  With
 
 Tumber shows a tab number in each open tab so you never jump to the wrong tab again!
 
+Now available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/tumber-tab-numbers-for-go/ikjojkniefmpkobmoilpeiiaofcajlgo)
+
 ### ✅ Prerequisites ###
 * Node.js minimum [v10 LTS](https://nodejs.org/download/release/latest-v10.x/)
 
