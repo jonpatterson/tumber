@@ -5,28 +5,9 @@ import {
   TOGGLE_ALL_CONTEXT,
   TOGGLE_SELF_DESTRUCT_CONTEXT,
 } from './constants';
+import { getLocalStorage, setActiveWindows } from './storage';
 
 let isActiveAllWindows = false;
-
-const getLocalStorage = () => {
-  return new Promise((resolve) => {
-    chrome.storage.local.get((result) => resolve(result));
-  });
-};
-
-export const setActiveWindows = (windowId, action) => {
-  chrome.storage.local.get((result) => {
-    let activeWindows = result.activeWindows ? result.activeWindows : [];
-
-    if (action === 'add') {
-      !activeWindows.includes(windowId) && activeWindows.push(windowId);
-    } else if (action === 'remove') {
-      activeWindows = activeWindows.filter((window) => window !== windowId);
-    }
-
-    chrome.storage.local.set({ activeWindows });
-  });
-};
 
 export const isWindowActive = (windowId) => {
   return new Promise((resolve) => {
@@ -46,8 +27,9 @@ const toggleIsSelfDestructEnabled = () => {
 const showTabNumbersInAllWindows = () => {
   isActiveAllWindows = true;
 
-  chrome.windows.getAll({}, (windows) => {
+  chrome.windows.getAll({}, async (windows) => {
     for (let window of windows) {
+      await setActiveWindows(window.id, 'add');
       showTabNumbersInWindow(window.id);
     }
   });
@@ -60,6 +42,8 @@ const removeTabNumbersInAllWindows = () => {
     for (let window of activeWindows) {
       removeTabNumbersInWindow(window);
     }
+
+    chrome.storage.local.remove('activeWindows');
   });
 };
 
@@ -74,7 +58,6 @@ export const showTabNumbersInWindow = (windowId) => {
           )}";`,
         });
     }
-    setActiveWindows(windowId, 'add');
 
     getLocalStorage().then(({ isSelfDestructEnabled }) => {
       if (isSelfDestructEnabled) {
@@ -94,8 +77,6 @@ export const removeTabNumbersInWindow = (windowId) => {
           code: resetTabTitle(tab.title),
         });
     }
-
-    setActiveWindows(windowId, 'remove');
   });
 };
 
@@ -107,10 +88,14 @@ export const resetTabTitle = (tabTitle) => {
 
 const toggleCurrentWindow = () => {
   chrome.windows.getCurrent({}, (window) => {
-    isWindowActive(window.id).then((result) => {
-      result
-        ? removeTabNumbersInWindow(window.id)
-        : showTabNumbersInWindow(window.id);
+    isWindowActive(window.id).then(async (result) => {
+      if (result) {
+        removeTabNumbersInWindow(window.id);
+        await setActiveWindows(window.id, 'remove');
+      } else {
+        showTabNumbersInWindow(window.id);
+        await setActiveWindows(window.id, 'add');
+      }
     });
   });
 };

@@ -11,52 +11,55 @@ import {
   showTabNumbersInWindow,
   resetTabTitle,
   isWindowActive,
-  setActiveWindows,
 } from './handlers';
+import { setActiveWindows } from './storage';
 
 chrome.commands.onCommand.addListener((command) => {
   onClickHandler(command);
 });
 
-chrome.tabs.onMoved.addListener((tabId, moveInfo) => {
-  isWindowActive(moveInfo.windowId).then((result) => {
-    if (result) {
-      removeTabNumbersInWindow(moveInfo.windowId);
-      showTabNumbersInWindow(moveInfo.windowId);
-    }
-  });
+chrome.tabs.onMoved.addListener(async (tabId, moveInfo) => {
+  const { windowId } = moveInfo;
+  const isActive = await isWindowActive(windowId);
+
+  if (isActive) {
+    removeTabNumbersInWindow(windowId);
+    showTabNumbersInWindow(windowId);
+  }
 });
 
-chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
-  isWindowActive(detachInfo.oldWindowId).then((result) => {
-    if (result) {
-      showTabNumbersInWindow(detachInfo.oldWindowId);
-      chrome.tabs.get(tabId, (tab) => {
-        chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) });
-      });
-    }
-  });
+chrome.tabs.onDetached.addListener(async (tabId, detachInfo) => {
+  const { oldWindowId } = detachInfo;
+  const isActive = await isWindowActive(oldWindowId);
+
+  if (isActive) {
+    showTabNumbersInWindow(oldWindowId);
+    chrome.tabs.get(tabId, (tab) => {
+      chrome.tabs.executeScript(tabId, { code: resetTabTitle(tab.title) });
+    });
+  }
 });
 
-chrome.tabs.onAttached.addListener((tabId, attachInfo) => {
-  isWindowActive(attachInfo.newWindowId).then((result) => {
-    if (result) {
-      showTabNumbersInWindow(attachInfo.newWindowId);
-    }
-  });
+chrome.tabs.onAttached.addListener(async (tabId, attachInfo) => {
+  const { newWindowId } = attachInfo;
+  const isActive = await isWindowActive(newWindowId);
+
+  isActive && showTabNumbersInWindow(newWindowId);
 });
 
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  isWindowActive(removeInfo.windowId).then((result) => {
-    if (result) {
-      if (removeInfo.isWindowClosing) {
-        setActiveWindows(removeInfo.windowId, 'remove');
-      } else {
-        removeTabNumbersInWindow(removeInfo.windowId);
-        showTabNumbersInWindow(removeInfo.windowId);
-      }
-    }
-  });
+chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  const { windowId, isWindowClosing } = removeInfo;
+  const isActive = await isWindowActive(windowId);
+
+  if (isActive && !isWindowClosing) {
+    removeTabNumbersInWindow(removeInfo.windowId);
+    showTabNumbersInWindow(removeInfo.windowId);
+  }
+});
+
+chrome.windows.onRemoved.addListener(async (windowId) => {
+  const isActive = await isWindowActive(windowId);
+  isActive && setActiveWindows(windowId, 'remove');
 });
 
 chrome.runtime.onInstalled.addListener(() => {
