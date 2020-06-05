@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Tumber - Tab Numbers for Google Chrome\u2122",
+  "name": "",
   "short_name": "Tumber",
-  "description": "Show tab numbers in Google Chrome\u2122 for tab jumping ninja!",
-  "version": "1.1.0",
+  "description": "",
+  "version": "",
   "permissions": [
       "storage", "tabs", "contextMenus", "<all_urls>"
   ],

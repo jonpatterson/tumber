@@ -36,5 +36,5 @@ export const PARENT_MENU_CONTEXT = {
 };
 
 export const TAB_LIMIT = 8;
-
 export const SELF_DESTRUCT_TIME_MS = 4000;
+export const STATUS_COMPLETE = 'complete';
