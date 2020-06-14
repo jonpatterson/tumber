@@ -16,8 +16,19 @@ import {
 
 export const isWindowActive = async (windowId) => {
   const { activeWindows } = await getLocalStorage();
-
   return activeWindows ? activeWindows.includes(windowId) : false;
+};
+
+const setTabTitle = ({ id, index, title }) => {
+  chrome.tabs.executeScript(id, {
+    code: `document.title = "${index + 1}: ${title.substring(
+      title.indexOf(':') + 1
+    )}";`,
+  });
+};
+
+export const showTabNumberInTab = (tab) => {
+  tab.url.includes('http') && setTabTitle(tab);
 };
 
 const showTabNumbersInAllWindows = () => {
@@ -47,13 +58,7 @@ const removeTabNumbersInAllWindows = async () => {
 export const showTabNumbersInWindow = (windowId) => {
   chrome.tabs.query({ windowId }, async (tabs) => {
     for (const tab of tabs) {
-      tab.url.includes('http') &&
-        tab.index < TAB_LIMIT &&
-        chrome.tabs.executeScript(tab.id, {
-          code: `document.title = "${tab.index + 1}: ${tab.title.substring(
-            tab.title.indexOf(':') + 1
-          )}";`,
-        });
+      tab.index < TAB_LIMIT && tab.url.includes('http') && setTabTitle(tab);
     }
 
     const { isSelfDestructEnabled } = await getLocalStorage();

@@ -30,5 +30,4 @@ Now with self destructing tab numbers!  Enable the _Self Destruct_ option from t
 ### 📝 Notes ###
 * Tab numbers cannot be shown on Chrome tabs such as the New Tab Page or Settings
 * Tabs are only numbered up to 8 as there are only shortcuts for the first 8 tabs
-* Navigating away from the current page will cause the number to be removed from the tab title
-* Some websites update the tab title to show status updates which may remove the tab number
+* Websites that show status updates in the tab title may overwrite the tab number

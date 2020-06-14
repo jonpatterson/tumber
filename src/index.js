@@ -4,6 +4,8 @@ import {
   TOGGLE_ALL_CONTEXT,
   SETTINGS_SEPARATOR_CONTEXT,
   TOGGLE_SELF_DESTRUCT_CONTEXT,
+  TAB_LIMIT,
+  STATUS_COMPLETE,
 } from './constants';
 import {
   onClickHandler,
@@ -11,11 +13,22 @@ import {
   showTabNumbersInWindow,
   resetTabTitle,
   isWindowActive,
+  showTabNumberInTab,
 } from './handlers';
 import { removeActiveWindow } from './storage';
 
 chrome.commands.onCommand.addListener((command) => {
   onClickHandler(command);
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (
+    tab.index < TAB_LIMIT &&
+    changeInfo.status === STATUS_COMPLETE &&
+    (await isWindowActive(tab.windowId))
+  ) {
+    showTabNumberInTab(tab);
+  }
 });
 
 chrome.tabs.onMoved.addListener(async (tabId, moveInfo) => {
