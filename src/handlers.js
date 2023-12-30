@@ -19,11 +19,14 @@ export const isWindowActive = async (windowId) => {
   return activeWindows ? activeWindows.includes(windowId) : false;
 };
 
+const changeTabTitle = (index, title) =>
+  (document.title = `${index + 1}: ${title.substring(title.indexOf(':') + 1)}`);
+
 const setTabTitle = ({ id, index, title }) => {
-  chrome.tabs.executeScript(id, {
-    code: `document.title = "${index + 1}: ${title.substring(
-      title.indexOf(':') + 1
-    )}";`,
+  chrome.scripting.executeScript({
+    target: { tabId: id },
+    func: changeTabTitle,
+    args: [index, title],
   });
 };
 
@@ -71,8 +74,10 @@ export const removeTabNumbersInWindow = (windowId) => {
   chrome.tabs.query({ windowId }, (tabs) => {
     for (const tab of tabs) {
       tab.url.includes('http') &&
-        chrome.tabs.executeScript(tab.id, {
-          code: resetTabTitle(tab.title),
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: resetTabTitle,
+          args: [tab.title],
         });
     }
   });
@@ -80,8 +85,8 @@ export const removeTabNumbersInWindow = (windowId) => {
 
 export const resetTabTitle = (tabTitle) => {
   return tabTitle.includes(':')
-    ? `document.title = "${tabTitle.substring(tabTitle.indexOf(':') + 2)}";`
-    : `document.title = "${tabTitle}";`;
+    ? (document.title = `${tabTitle.substring(tabTitle.indexOf(':') + 2)}`)
+    : (document.title = `${tabTitle}`);
 };
 
 const toggleCurrentWindow = () => {
